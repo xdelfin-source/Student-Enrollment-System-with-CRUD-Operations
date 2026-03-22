@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="CourseGUI">
+  <grid id="27dc6" binding="CoursePanel" layout-manager="GridLayoutManager" row-count="12" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="122" y="20" width="612" height="469"/>
+    </constraints>
+    <properties>
+      <background color="-15195856"/>
+      <enabled value="false"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <grid id="58844" binding="sidePanel" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="0" column="0" row-span="12" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-10616826"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="66ba8" class="javax.swing.JButton" binding="studentButton" default-binding="true">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-13947600"/>
+              <font name="Arial Black"/>
+              <foreground color="-2104859"/>
+              <hideActionText value="false"/>
+              <text value="Student"/>
+            </properties>
+          </component>
+          <component id="dd8f" class="javax.swing.JButton" binding="coursesButton" default-binding="true">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-13947600"/>
+              <font name="Arial Black"/>
+              <foreground color="-2104859"/>
+              <text value="Courses"/>
+            </properties>
+          </component>
+          <vspacer id="f7464">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </vspacer>
+          <vspacer id="2da4">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </vspacer>
+          <component id="abaf5" class="javax.swing.JButton" binding="enrollmentButton" default-binding="true">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-13947600"/>
+              <font name="Arial Black"/>
+              <foreground color="-2104859"/>
+              <text value="Enrollment"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="70126" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="4" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font name="Arial Black"/>
+          <foreground color="-2103835"/>
+          <text value="Course Title:"/>
+        </properties>
+      </component>
+      <component id="80d32" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font name="Arial Black"/>
+          <foreground color="-2103835"/>
+          <text value="Units:"/>
+        </properties>
+      </component>
+      <hspacer id="c8ca6">
+        <constraints>
+          <grid row="4" column="4" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="a2c4" class="javax.swing.JTextField" binding="txtCourseCode">
+        <constraints>
+          <grid row="3" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <background color="-14737633"/>
+          <foreground color="-2103835"/>
+        </properties>
+      </component>
+      <component id="74b15" class="javax.swing.JTextField" binding="txtCourseName">
+        <constraints>
+          <grid row="5" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <background color="-14737633"/>
+          <foreground color="-2103835"/>
+        </properties>
+      </component>
+      <component id="6aa47" class="javax.swing.JSpinner" binding="spinUnits">
+        <constraints>
+          <grid row="7" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="e4923" class="javax.swing.JButton" binding="btnAdd">
+        <constraints>
+          <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-13947600"/>
+          <font name="Arial Black"/>
+          <foreground color="-2103835"/>
+          <text value="Add "/>
+        </properties>
+      </component>
+      <component id="1bb75" class="javax.swing.JButton" binding="btnDelete">
+        <constraints>
+          <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-13947600"/>
+          <enabled value="true"/>
+          <font name="Arial Black"/>
+          <foreground color="-2103835"/>
+          <text value="Delete"/>
+        </properties>
+      </component>
+      <component id="2e08b" class="javax.swing.JButton" binding="btnUpdate">
+        <constraints>
+          <grid row="8" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-13947600"/>
+          <font name="Arial Black"/>
+          <foreground color="-2103835"/>
+          <text value="Update"/>
+        </properties>
+      </component>
+      <component id="7aaee" class="javax.swing.JButton" binding="btnClear">
+        <constraints>
+          <grid row="9" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-13947600"/>
+          <enabled value="true"/>
+          <font name="Arial Black"/>
+          <foreground color="-2103835"/>
+          <text value="Clear"/>
+        </properties>
+      </component>
+      <scrollpane id="23537">
+        <constraints>
+          <grid row="10" column="2" row-span="1" col-span="2" vsize-policy="1" hsize-policy="1" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="300" height="200"/>
+          </grid>
+        </constraints>
+        <properties>
+          <foreground color="-2103835"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="84a4a" class="javax.swing.JTable" binding="table1" default-binding="true">
+            <constraints/>
+            <properties>
+              <background color="-14737633"/>
+              <foreground color="-2103835"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <component id="c626c" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font name="Arial Black" size="20"/>
+          <foreground color="-2103835"/>
+          <text value="Courses"/>
+        </properties>
+      </component>
+      <vspacer id="3b581">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <hspacer id="e4312">
+        <constraints>
+          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <vspacer id="6ff58">
+        <constraints>
+          <grid row="11" column="2" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <component id="c315c" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="2" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font name="Arial Black"/>
+          <foreground color="-2103835"/>
+          <text value="Course Code:"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
