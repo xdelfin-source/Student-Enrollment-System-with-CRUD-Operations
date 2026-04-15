@@ -1,5 +1,8 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.sql.*;
 import java.awt.Dimension;
 
@@ -9,15 +12,20 @@ public class StudentGUI {
     private JButton btnSave, btnUpdate, btnDelete, btnClear;
     private JButton studentButton, enrollmentButton, coursesButton;
     private JTable tableStudents;
+    private JTextField textField1; // This acts as your Search Bar
+
+    // 1. Declare the TableRowSorter
+    private TableRowSorter<DefaultTableModel> rowSorter;
 
     public StudentGUI() {
         JFrame frame = new JFrame("Student Management System");
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setMinimumSize(new Dimension(1000, 700));
+
         setupListeners(frame);
         loadStudentData(); // Initial load
-        if (btnDelete != null) btnDelete.addActionListener(e -> deleteStudent());
+
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
@@ -27,10 +35,10 @@ public class StudentGUI {
         if (coursesButton != null) {
             coursesButton.addActionListener(e -> {
                 try {
-                    new CourseGUI(); // Open Course window
-                    frame.dispose(); // Close Student window
+                    new CourseGUI();
+                    frame.dispose();
                 } catch (Exception ex) {
-                    ex.printStackTrace(); // Prints exact line of error in console
+                    ex.printStackTrace();
                     JOptionPane.showMessageDialog(mainPanel, "Crash opening Course window:\n" + ex.toString(), "Navigation Error", JOptionPane.ERROR_MESSAGE);
                 }
             });
@@ -39,8 +47,8 @@ public class StudentGUI {
         if (enrollmentButton != null) {
             enrollmentButton.addActionListener(e -> {
                 try {
-                    new EnrollmentGUI(); // Open Enrollment window
-                    frame.dispose(); // Close Student window
+                    new EnrollmentGUI();
+                    frame.dispose();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(mainPanel, "Crash opening Enrollment window:\n" + ex.toString(), "Navigation Error", JOptionPane.ERROR_MESSAGE);
@@ -54,41 +62,85 @@ public class StudentGUI {
         if (btnDelete != null) btnDelete.addActionListener(e -> deleteStudent());
         if (btnClear != null) btnClear.addActionListener(e -> clearFields());
 
+        // Table Selection Listener
         if (tableStudents != null) {
             tableStudents.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    int row = tableStudents.getSelectedRow();
-                    if (row != -1) {
-                        txtFirstName.setText(tableStudents.getValueAt(row, 1).toString());
-                        txtLastName.setText(tableStudents.getValueAt(row, 2).toString());
-                        txtEmail.setText(tableStudents.getValueAt(row, 3).toString());
-                        txtAge.setText(tableStudents.getValueAt(row, 4).toString());
+                    int viewRow = tableStudents.getSelectedRow();
+                    if (viewRow != -1) {
+                        // IMPORTANT: Convert view index to model index when using a filter!
+                        int modelRow = tableStudents.convertRowIndexToModel(viewRow);
+                        DefaultTableModel model = (DefaultTableModel) tableStudents.getModel();
+
+                        txtFirstName.setText(model.getValueAt(modelRow, 1).toString());
+                        txtLastName.setText(model.getValueAt(modelRow, 2).toString());
+                        txtEmail.setText(model.getValueAt(modelRow, 3).toString());
+                        txtAge.setText(model.getValueAt(modelRow, 4).toString());
                     }
                 }
             });
         }
+
+        // 2. Add Listener to the Search Bar (textField1)
+        if (textField1 != null) {
+            textField1.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) { applyFilter(); }
+                @Override
+                public void removeUpdate(DocumentEvent e) { applyFilter(); }
+                @Override
+                public void changedUpdate(DocumentEvent e) { applyFilter(); }
+            });
+        }
+    }
+
+    // 3. Helper method to apply the search filter
+    private void applyFilter() {
+        if (rowSorter == null) return;
+
+        String text = textField1.getText();
+        if (text.trim().length() == 0) {
+            rowSorter.setRowFilter(null); // Show all if search is empty
+        } else {
+            // (?i) makes the search case-insensitive
+            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+        }
     }
 
     public void loadStudentData() {
-        DefaultTableModel model = new DefaultTableModel(new String[]{"ID", "First Name", "Last Name", "Email", "Age"}, 0);
+        DefaultTableModel model = new DefaultTableModel(new String[]{"ID", "First Name", "Last Name", "Email", "Age"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Good practice: prevent users from double-clicking and typing directly in the table
+            }
+        };
 
         try (Connection conn = DatabaseConnection.getConnection()) {
             if (conn == null) return;
 
-            String sql = "SELECT * FROM student"; // Singular table name
+            String sql = "SELECT * FROM student";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
                 model.addRow(new Object[]{
-                        rs.getInt("student_id"), // Column name from your DB
+                        rs.getInt("student_id"),
                         rs.getString("first_name"),
                         rs.getString("last_name"),
                         rs.getString("email"),
                         rs.getInt("age")
                 });
             }
+
             tableStudents.setModel(model);
+
+            // 4. Attach the sorter to the new model every time data is reloaded
+            rowSorter = new TableRowSorter<>(model);
+            tableStudents.setRowSorter(rowSorter);
+
+            // Re-apply filter in case the user typed something before saving/updating
+            applyFilter();
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -111,7 +163,7 @@ public class StudentGUI {
 
             pstmt.executeUpdate();
             JOptionPane.showMessageDialog(mainPanel, "Student Saved!");
-            loadStudentData();
+            loadStudentData(); // This will auto-update the table and keep the search active
             clearFields();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(mainPanel, "Save Error: " + ex.getMessage());
@@ -119,10 +171,13 @@ public class StudentGUI {
     }
 
     private void updateStudent() {
-        int row = tableStudents.getSelectedRow();
-        if (row == -1) return;
+        int viewRow = tableStudents.getSelectedRow();
+        if (viewRow == -1) return;
 
-        int id = (int) tableStudents.getValueAt(row, 0);
+        // Convert view index to model index to grab the correct ID
+        int modelRow = tableStudents.convertRowIndexToModel(viewRow);
+        int id = (int) tableStudents.getModel().getValueAt(modelRow, 0);
+
         String sql = "UPDATE student SET first_name=?, last_name=?, email=?, age=? WHERE student_id=?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -143,10 +198,13 @@ public class StudentGUI {
     }
 
     private void deleteStudent() {
-        int row = tableStudents.getSelectedRow();
-        if (row == -1) return;
+        int viewRow = tableStudents.getSelectedRow();
+        if (viewRow == -1) return;
 
-        int id = (int) tableStudents.getValueAt(row, 0);
+        // Convert view index to model index to grab the correct ID
+        int modelRow = tableStudents.convertRowIndexToModel(viewRow);
+        int id = (int) tableStudents.getModel().getValueAt(modelRow, 0);
+
         int confirm = JOptionPane.showConfirmDialog(mainPanel, "Delete this student?", "Confirm", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {

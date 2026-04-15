@@ -1,5 +1,8 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.Dimension;
 import java.sql.*;
 import java.util.HashMap;
@@ -11,9 +14,13 @@ public class EnrollmentGUI {
     private JButton studentButton, enrollmentButton, coursesButton;
     private JButton btnEnroll, btnUpdateEnrollment, btnDeleteEnrollment, btnClearEnrollment;
     private JPanel sidePanel;
+    private JTextField textField1; // Search Bar
 
     private HashMap<String, Integer> studentMap = new HashMap<>();
     private HashMap<String, Integer> courseMap = new HashMap<>();
+
+    // 1. Declare the TableRowSorter
+    private TableRowSorter<DefaultTableModel> rowSorter;
 
     public EnrollmentGUI() {
         JFrame frame = new JFrame("Enrollment Management");
@@ -44,17 +51,45 @@ public class EnrollmentGUI {
         if (btnDeleteEnrollment != null) btnDeleteEnrollment.addActionListener(e -> deleteEnrollment());
         if (btnClearEnrollment != null) btnClearEnrollment.addActionListener(e -> clearFields());
 
-        // --- Table Selection ---
+        // --- Table Selection - Updated with convertRowIndexToModel ---
         if (tableEnrollment != null) {
             tableEnrollment.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    int row = tableEnrollment.getSelectedRow();
-                    if (row != -1) {
-                        comboStudent.setSelectedItem(tableEnrollment.getValueAt(row, 1).toString());
-                        comboCourse.setSelectedItem(tableEnrollment.getValueAt(row, 2).toString());
+                    int viewRow = tableEnrollment.getSelectedRow();
+                    if (viewRow != -1) {
+                        int modelRow = tableEnrollment.convertRowIndexToModel(viewRow);
+                        DefaultTableModel model = (DefaultTableModel) tableEnrollment.getModel();
+
+                        comboStudent.setSelectedItem(model.getValueAt(modelRow, 1).toString());
+                        comboCourse.setSelectedItem(model.getValueAt(modelRow, 2).toString());
                     }
                 }
             });
+        }
+
+        // 2. Add Listener to the Search Bar (textField1)
+        if (textField1 != null) {
+            textField1.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) { applyFilter(); }
+                @Override
+                public void removeUpdate(DocumentEvent e) { applyFilter(); }
+                @Override
+                public void changedUpdate(DocumentEvent e) { applyFilter(); }
+            });
+        }
+    }
+
+    // 3. Helper method to apply the search filter
+    private void applyFilter() {
+        if (rowSorter == null) return;
+
+        String text = textField1.getText();
+        if (text.trim().length() == 0) {
+            rowSorter.setRowFilter(null); // Show all if search is empty
+        } else {
+            // (?i) makes the search case-insensitive
+            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
         }
     }
 
@@ -116,13 +151,17 @@ public class EnrollmentGUI {
 
     private void updateEnrollment() {
         if (tableEnrollment == null) return;
-        int row = tableEnrollment.getSelectedRow();
-        if (row == -1) {
+
+        int viewRow = tableEnrollment.getSelectedRow();
+        if (viewRow == -1) {
             JOptionPane.showMessageDialog(EnrollmentPanel, "Select an enrollment to update.");
             return;
         }
 
-        int id = (int) tableEnrollment.getValueAt(row, 0);
+        // Convert view index to model index
+        int modelRow = tableEnrollment.convertRowIndexToModel(viewRow);
+        int id = (int) tableEnrollment.getModel().getValueAt(modelRow, 0);
+
         String sName = (String) comboStudent.getSelectedItem();
         String cName = (String) comboCourse.getSelectedItem();
 
@@ -145,10 +184,14 @@ public class EnrollmentGUI {
 
     private void deleteEnrollment() {
         if (tableEnrollment == null) return;
-        int row = tableEnrollment.getSelectedRow();
-        if (row == -1) return;
 
-        int id = (int) tableEnrollment.getValueAt(row, 0);
+        int viewRow = tableEnrollment.getSelectedRow();
+        if (viewRow == -1) return;
+
+        // Convert view index to model index
+        int modelRow = tableEnrollment.convertRowIndexToModel(viewRow);
+        int id = (int) tableEnrollment.getModel().getValueAt(modelRow, 0);
+
         if (JOptionPane.showConfirmDialog(EnrollmentPanel, "Remove this enrollment?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
             try (Connection conn = DatabaseConnection.getConnection();
@@ -185,7 +228,14 @@ public class EnrollmentGUI {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            DefaultTableModel model = new DefaultTableModel(new String[]{"ID", "Student Name", "Course", "Date"}, 0);
+            // Make cells non-editable
+            DefaultTableModel model = new DefaultTableModel(new String[]{"ID", "Student Name", "Course", "Date"}, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
             while (rs.next()) {
                 model.addRow(new Object[]{
                         rs.getInt("enrollment_id"),
@@ -195,6 +245,14 @@ public class EnrollmentGUI {
                 });
             }
             tableEnrollment.setModel(model);
+
+            // 4. Attach the sorter to the new model every time data is reloaded
+            rowSorter = new TableRowSorter<>(model);
+            tableEnrollment.setRowSorter(rowSorter);
+
+            // Re-apply filter in case the user typed something before saving/updating
+            applyFilter();
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(EnrollmentPanel, "Database SQL Error:\n" + ex.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
